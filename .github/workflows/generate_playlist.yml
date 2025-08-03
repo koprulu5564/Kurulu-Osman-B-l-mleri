@@ -1,0 +1,38 @@
+name: Generate M3U Playlist
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_episode:
+        description: 'Başlangıç Bölümü'
+        required: true
+        default: '1'
+      end_episode:
+        description: 'Bitiş Bölümü'
+        required: true
+        default: '194'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: pip install requests
+    
+    - name: Generate M3U
+      run: python scripts/generate_m3u.py ${{ github.event.inputs.start_episode }} ${{ github.event.inputs.end_episode }}
+    
+    - name: Commit and push
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add kurulus-osman.m3u
+        git commit -m "M3U playlist güncellendi"
+        git push
